@@ -47,6 +47,9 @@ module "vote_service_sg" {
   vpc_id      = module.vpc.vpc_id
   tags = merge(local.common_tags, {resource = "Security_group"})
 
+  # ingress_cidr_blocks = ["0.0.0.0/0"]
+  # ingress_rules       = ["ssh-tcp"]
+
   ingress_with_cidr_blocks = [
 
       for port in local.ports:
@@ -58,6 +61,8 @@ module "vote_service_sg" {
       cidr_blocks = join(",", local.private_subnets)
     }
   ]
+
+  egress_rules = ["all-all"]
 }
 
 
@@ -68,8 +73,10 @@ module "ec2_instance" {
 
   instance_type = "t3.micro"
   monitoring    = false
+  vpc_security_group_ids = [module.vote_service_sg.security_group_id]
   subnet_id     = module.vpc.public_subnets[0]
   key_name = aws_key_pair.key_pair.key_name
+  associate_public_ip_address = true
 
   tags = merge(local.common_tags, {resource = "ec2_instance"})
 }
