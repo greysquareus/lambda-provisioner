@@ -48,6 +48,7 @@ module "vote_service_sg" {
   tags = merge(local.common_tags, {resource = "Security_group"})
 
   ingress_with_cidr_blocks = [
+
       for port in local.ports:
     {
       from_port   = port
@@ -68,6 +69,7 @@ module "ec2_instance" {
   instance_type = "t3.micro"
   monitoring    = false
   subnet_id     = module.vpc.public_subnets[0]
+  key_name = aws_key_pair.key_pair.key_name
 
   tags = merge(local.common_tags, {resource = "ec2_instance"})
 }
