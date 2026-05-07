@@ -1,0 +1,21 @@
+- name: installddd
+  hosts: webservers
+  become: true
+
+  tasks:
+    - name: install nginx
+      yum:                  # ← замість apt
+        name: nginx
+        state: present
+
+    - name: start nginx
+      service:
+        name: nginx
+        state: started
+        enabled: true
+
+  handlers:
+    - name: Restart nginx
+      service:
+        name: nginx
+        state: restarted
