@@ -1,11 +1,11 @@
 ###Common values
 variable "region" {
-  type = string
+  type    = string
   default = "us-east-1"
 }
 
 variable "env" {
-  type = string
+  type    = string
   default = "dev"
 }
 
@@ -38,18 +38,18 @@ variable "public_subnets" {
 
 ###Ports for sec hroup
 variable "ports" {
-  default = [ "80", "443" ]
-  type = set(string)
+  default = ["80", "443"]
+  type    = set(string)
 }
 
 
 ###EC2
 variable "detailed_monitoring" {
   default = false
-  type = bool
+  type    = bool
 }
 
 variable "instance_type" {
-  type = string
+  type    = string
   default = "t2.micro"
 }
