@@ -1,24 +1,6 @@
-terraform {
-  required_providers {
-    aws = {
-      source  = "hashicorp/aws"
-      version = "~> 6.0"
-    }
-  }
-}
-
-data "aws_availability_zones" "available" {
-  state = "available"
-}
-
-provider "aws" {
-  region = "us-east-1"
-}
-
-
 resource "aws_subnet" "main" {
   vpc_id     = module.vpc.vpc_id
-  cidr_block = "10.0.1.0/24"
+  cidr_block = var.subnet_main
 
   tags = merge(local.common_tags, { resource = "Subnet" })
 }
@@ -26,7 +8,7 @@ resource "aws_subnet" "main" {
 module "vote_service_sg" {
   source = "terraform-aws-modules/security-group/aws"
 
-  name        = "user-service"
+  name        = var.sec_group_name
   description = "Security group for user-service with custom ports open within VPC, and PostgreSQL publicly open"
   vpc_id      = module.vpc.vpc_id
   tags        = merge(local.common_tags, { resource = "Security_group" })

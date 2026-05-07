@@ -36,10 +36,14 @@ variable "public_subnets" {
 }
 
 
-###Ports for sec hroup
+###Sec-group
 variable "ports" {
   default = ["80", "443"]
   type    = set(string)
+}
+
+variable "sec_group_name" {
+  type = string
 }
 
 
