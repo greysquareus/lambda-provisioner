@@ -27,6 +27,10 @@ variable "vpc_cidr" {
 }
 
 ###Subnets
+variable "subnet_main" {
+  type = string
+}
+
 variable "private_subnets" {
   type = list(string)
 }

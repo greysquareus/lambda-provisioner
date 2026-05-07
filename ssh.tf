@@ -3,16 +3,20 @@ resource "tls_private_key" "instance_key" {
   rsa_bits  = 4096
 }
 
-resource "local_file" "private_key" {
-  content         = tls_private_key.instance_key.private_key_pem
-  filename        = "${path.module}/.ssh/id_rsa_instance.pem"
-  file_permission = "0400"
-}
+resource "null_resource" "private_key_file" {
+  triggers = {
+    key_hash = sha256(tls_private_key.instance_key.private_key_openssh)
+  }
 
-resource "local_file" "public_key" {
-  content         = tls_private_key.instance_key.public_key_pem
-  filename        = "${path.module}/.ssh/id_rsa_instance_pub.pem"
-  file_permission = "0400"
+  provisioner "local-exec" {
+    command = <<-EOT
+      mkdir -p ${path.module}/.ssh
+      cat > ${path.module}/.ssh/id_rsa_instance.pem << 'KEYEOF'
+${tls_private_key.instance_key.private_key_openssh}
+KEYEOF
+      chmod 600 ${path.module}/.ssh/id_rsa_instance.pem
+    EOT
+  }
 }
 
 resource "aws_key_pair" "key_pair" {

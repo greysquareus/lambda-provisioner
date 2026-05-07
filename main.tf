@@ -1,6 +1,6 @@
 resource "aws_subnet" "main" {
   vpc_id     = module.vpc.vpc_id
-  cidr_block = var.subnet_main
+  cidr_block = "10.0.1.0/24"
 
   tags = merge(local.common_tags, { resource = "Subnet" })
 }
@@ -13,8 +13,8 @@ module "vote_service_sg" {
   vpc_id      = module.vpc.vpc_id
   tags        = merge(local.common_tags, { resource = "Security_group" })
 
-  # ingress_cidr_blocks = ["0.0.0.0/0"]
-  # ingress_rules       = ["ssh-tcp"]
+  ingress_cidr_blocks = ["${chomp(data.http.myip.response_body)}/32"]
+  ingress_rules       = ["ssh-tcp"]
 
   ingress_with_cidr_blocks = [
 
@@ -46,6 +46,31 @@ module "ec2_instance" {
   tags = merge(local.common_tags, { resource = "ec2_instance" })
 }
 
+resource "local_file" "ansible_inventory" {
+  content = templatefile("${path.module}/templates/inventory.tpl", {
+    public_ip = module.ec2_instance.public_ip
+    ssh_key_path = "${path.module}/.ssh/id_rsa_instance.pem"
+  })
+
+  filename = "${path.module}/inventory.ini"
+}
+
+resource "null_resource" "init" {
+  triggers = {
+    instance_ip = module.ec2_instance.public_ip
+  }
+
+  depends_on = [null_resource.private_key_file, module.ec2_instance, local_file.ansible_inventory]
+
+  provisioner "local-exec" {
+    command = <<-EOT
+      sleep 30
+      ansible-playbook -i ${local_file.ansible_inventory.filename} ./scripts/playbook.yml
+    EOT
+  }
+}
+
+
 module "vpc" {
   source = "terraform-aws-modules/vpc/aws"
 
@@ -61,3 +86,4 @@ module "vpc" {
 
   tags = merge(local.common_tags, { resource = "vpc" })
 }
+

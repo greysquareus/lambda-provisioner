@@ -7,6 +7,10 @@ terraform {
   }
 }
 
+data "http" "myip" {
+  url = "https://ifconfig.io"
+}
+
 data "aws_availability_zones" "available" {
   state = "available"
 }
