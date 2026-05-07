@@ -11,3 +11,5 @@ terraform.tfvars
 .ssh*
 id_rsa*
 *.pem
+inventory.ini
+init.sh
